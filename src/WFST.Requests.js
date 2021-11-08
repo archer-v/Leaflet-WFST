@@ -28,6 +28,10 @@ L.WFST.include({
     var node = L.XmlUtil.createElementNS('wfs:Update', { typeName: this.options.typeNSName });
     var feature = layer.feature;
     for (var propertyName in feature.properties) {
+      //geoserver fast fix
+      //skip boundedBy property to send in the transaction, because geoserver doesn't expect this property in transaction update request
+      if (propertyName === "boundedBy")
+        continue;
       if (feature.properties.hasOwnProperty(propertyName)) {
         node.appendChild(this.wfsProperty(propertyName, feature.properties[propertyName]));
       }
