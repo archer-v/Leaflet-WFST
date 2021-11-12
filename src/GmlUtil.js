@@ -36,5 +36,20 @@ L.GmlUtil = {
 
     var posList = localcoords.join(' ');
     return L.XmlUtil.createElementNS('gml:posList', {}, { value: posList });
+  },
+
+  //transform lng coordinates outside the world bounds -180:180 to inner area (add or sub 360*x degrees)
+  transformToWorldBounds: function (latLngs) {
+    for (var j in latLngs) {
+      for (var i in latLngs[j]) {
+        if (latLngs[j][i].lng > 180) {
+          latLngs[j][i].lng = latLngs[j][i].lng - 360 * (parseInt(( latLngs[j][i].lng  - 180 ) / 360) + 1)
+        } else if (latLngs[j][i].lng < -180) {
+          latLngs[j][i].lng = latLngs[j][i].lng + 360 * (parseInt((-180 - latLngs[j][i].lng ) / 360) + 1)
+        }
+      }
+    }
+    return latLngs;
   }
+
 };

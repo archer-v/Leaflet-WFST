@@ -7,6 +7,8 @@ L.Polygon.include({
     var polygons = this.getLatLngs();
     var gmlPolygons = [];
 
+    L.GmlUtil.transformToWorldBounds(polygons);
+    
     for (var i = 0; i < polygons.length; i++) {
       var polygonCoordinates = polygons[i];
       var flat = L.Util.isFlat(polygonCoordinates);
