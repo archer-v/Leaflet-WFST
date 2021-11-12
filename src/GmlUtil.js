@@ -43,9 +43,9 @@ L.GmlUtil = {
     for (var j in latLngs) {
       for (var i in latLngs[j]) {
         if (latLngs[j][i].lng > 180) {
-          latLngs[j][i].lng = latLngs[j][i].lng - 360 * (parseInt(( latLngs[j][i].lng  - 180 ) / 360) + 1)
+          latLngs[j][i].lng = latLngs[j][i].lng - 360 * (Math.floor(( latLngs[j][i].lng  - 180 ) / 360) + 1)
         } else if (latLngs[j][i].lng < -180) {
-          latLngs[j][i].lng = latLngs[j][i].lng + 360 * (parseInt((-180 - latLngs[j][i].lng ) / 360) + 1)
+          latLngs[j][i].lng = latLngs[j][i].lng + 360 * (Math.floor((-180 - latLngs[j][i].lng ) / 360) + 1)
         }
       }
     }
