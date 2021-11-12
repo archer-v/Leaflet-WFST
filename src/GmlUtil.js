@@ -40,16 +40,20 @@ L.GmlUtil = {
 
   //transform lng coordinates outside the world bounds -180:180 to inner area (add or sub 360*x degrees)
   transformToWorldBounds: function (latLngs) {
+    var resultLatLngs = [];
     for (var j in latLngs) {
+      resultLatLngs.push([])
       for (var i in latLngs[j]) {
-        if (latLngs[j][i].lng > 180) {
-          latLngs[j][i].lng = latLngs[j][i].lng - 360 * (Math.floor(( latLngs[j][i].lng  - 180 ) / 360) + 1)
+        var latLng = L.latLng([latLngs[j][i].lat, latLngs[j][i].lng]);
+        if (latLng.lng > 180) {
+          latLng.lng = latLng.lng - 360 * (Math.floor(( latLng.lng  - 180 ) / 360) + 1)
         } else if (latLngs[j][i].lng < -180) {
-          latLngs[j][i].lng = latLngs[j][i].lng + 360 * (Math.floor((-180 - latLngs[j][i].lng ) / 360) + 1)
+          latLng.lng = latLng.lng + 360 * (Math.floor((-180 - latLng.lng ) / 360) + 1)
         }
+        resultLatLngs[j].push(latLng);
       }
     }
-    return latLngs;
+    return resultLatLngs;
   }
 
 };

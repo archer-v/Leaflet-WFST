@@ -13,7 +13,7 @@ L.Polyline.include({
     var latLngs = this.getLatLngs();
     var gmlElements = [];
 
-    L.GmlUtil.transformToWorldBounds(latLngs);
+    latLngs = L.GmlUtil.transformToWorldBounds(latLngs);
 
     if (L.Util.isFlat(latLngs)) {
        gmlElements.push(this._lineStringNode(crs, latLngs));

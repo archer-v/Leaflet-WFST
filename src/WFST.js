@@ -62,7 +62,8 @@ L.WFST = L.WFS.extend({
     var transaction = L.XmlUtil.createElementNS('wfs:Transaction', { service: 'WFS', version: this.options.version });
 
     var inserted = [];
-
+    var updated = [];
+    
     for (var id in this.changes) {
       var layer = this.changes[id];
       var action = this[layer.state](layer);
@@ -70,6 +71,9 @@ L.WFST = L.WFS.extend({
 
       if (layer.state === this.state.insert) {
         inserted.push(layer);
+      }
+      if (layer.state === this.state.update) {
+        updated.push(layer);
       }
     }
 
@@ -88,24 +92,42 @@ L.WFST = L.WFS.extend({
           return;
         }
 
-        var insertResult = L.XmlUtil.evaluate('//wfs:InsertResults/wfs:Feature/ogc:FeatureId/@fid', xmlDoc);
-        var insertedIds = [];
-        var id = insertResult.iterateNext();
-        while (id) {
-          insertedIds.push(new L.Filter.GmlObjectID(id.value));
-          id = insertResult.iterateNext();
+        var totalUpdated = 0;
+        var totalInserted = 0;
+
+        try {
+          totalUpdated = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalUpdated', xmlDoc).iterateNext().textContent * 1;
+          totalInserted = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalInserted', xmlDoc).iterateNext().textContent * 1;
+
+          if (totalUpdated == updated.length) {
+            for (var i in updated) {
+              delete that.changes[updated[i]._leaflet_id];
+            }
+          }
+        } catch (e) {
+
         }
 
-        inserted.forEach(function (layer) {
-          L.FeatureGroup.prototype.removeLayer.call(that, layer);
-        });
+        if (totalInserted > 0) {
+          var insertResult = L.XmlUtil.evaluate('//wfs:InsertResults/wfs:Feature/ogc:FeatureId/@fid', xmlDoc);
+          var insertedIds = [];
+          var id = insertResult.iterateNext();
+          while (id) {
+            insertedIds.push(new L.Filter.GmlObjectID(id.value));
+            id = insertResult.iterateNext();
+          }
 
-        that.once('load', function (e) {
-          that.fire('save:success', { layers: e.layers });
-          that.changes = {};
-        });
+          inserted.forEach(function (layer) {
+            L.FeatureGroup.prototype.removeLayer.call(that, layer);
+          });
 
-        that.loadFeatures(insertedIds);
+          that.once('load', function (e) {
+            that.fire('save:success', { layers: e.layers });
+            that.changes = {};
+          });
+
+          that.loadFeatures(insertedIds);
+        }
       },
       error: function (data) {
         that.fire('save:failed', data);
