@@ -39,21 +39,26 @@ L.GmlUtil = {
   },
 
   //transform lng coordinates outside the world bounds -180:180 to inner area (add or sub 360*x degrees)
+  //todo checking SRS needed causes it works only for standart EPSG:4326
   transformToWorldBounds: function (latLngs) {
-    var resultLatLngs = [];
-    for (var j in latLngs) {
-      resultLatLngs.push([])
-      for (var i in latLngs[j]) {
-        var latLng = L.latLng([latLngs[j][i].lat, latLngs[j][i].lng]);
-        if (latLng.lng > 180) {
-          latLng.lng = latLng.lng - 360 * (Math.floor(( latLng.lng  - 180 ) / 360) + 1)
-        } else if (latLngs[j][i].lng < -180) {
-          latLng.lng = latLng.lng + 360 * (Math.floor((-180 - latLng.lng ) / 360) + 1)
-        }
-        resultLatLngs[j].push(latLng);
+    //passes the multidimensional array recursively
+    if (Array.isArray(latLngs)) {
+      var resultLatLngs = [];
+      for (var i = 0; i < latLngs.length; i++) {
+        resultLatLngs.push(this.transformToWorldBounds(latLngs[i]));
       }
+
+      return resultLatLngs;
     }
-    return resultLatLngs;
-  }
+
+    var tLatLng = L.latLng([latLngs.lat, latLngs.lng]);
+    if (tLatLng.lng > 180) {
+      tLatLng.lng = tLatLng.lng - 360 * (Math.floor(( tLatLng.lng  - 180 ) / 360) + 1)
+    } else if (tLatLng.lng < -180) {
+      tLatLng.lng = tLatLng.lng + 360 * (Math.floor((-180 - tLatLng.lng ) / 360) + 1)
+    }
+
+    return tLatLng;
+  },
 
 };
