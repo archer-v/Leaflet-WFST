@@ -27,6 +27,14 @@ L.WFST.include({
   updateElement: function (layer) {
     var node = L.XmlUtil.createElementNS('wfs:Update', { typeName: this.options.typeNSName });
     var feature = layer.feature;
+
+    node.appendChild(
+      this.wfsProperty(
+        this.namespaceName(this.options.geometryField),
+        layer.toGml(this.options.crs, this.options.forceMulti)
+      )
+    );
+
     for (var propertyName in feature.properties) {
       //geoserver fast fix
       //skip boundedBy property to send in the transaction, because geoserver doesn't expect this property in transaction update request
@@ -36,13 +44,6 @@ L.WFST.include({
         node.appendChild(this.wfsProperty(propertyName, feature.properties[propertyName]));
       }
     }
-
-    node.appendChild(
-      this.wfsProperty(
-        this.namespaceName(this.options.geometryField),
-        layer.toGml(this.options.crs, this.options.forceMulti)
-      )
-    );
 
     var idFilter = new L.Filter.GmlObjectID(layer.feature.id);
     node.appendChild(L.filter(idFilter));

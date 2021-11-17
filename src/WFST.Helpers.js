@@ -1,11 +1,6 @@
 L.WFST.include({
   gmlFeature: function (layer) {
     var featureNode = L.XmlUtil.createElementNS(this.options.typeNSName, {}, { uri: this.options.namespaceUri });
-    var feature = layer.feature;
-    for (var propertyName in feature.properties) {
-      featureNode.appendChild(this.gmlProperty(propertyName,
-        feature.properties[propertyName]));
-    }
 
     featureNode.appendChild(
       this.gmlProperty(
@@ -16,6 +11,12 @@ L.WFST.include({
         )
       )
     );
+
+    var feature = layer.feature;
+    for (var propertyName in feature.properties) {
+      featureNode.appendChild(this.gmlProperty(propertyName,
+        feature.properties[propertyName]));
+    }
 
     return featureNode;
   },

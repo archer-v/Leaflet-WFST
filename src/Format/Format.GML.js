@@ -69,12 +69,15 @@ L.Format.GML = L.Format.Base.extend({
    * @private
    */
   processFeature: function (feature) {
-    var layer = this.generateLayer(feature);
+
+    var f = this.featureType.parse(feature)
+
+    var layer = this.generateLayer(feature, f.properties);
     if (!layer) {
       return null;
     }
 
-    layer.feature = this.featureType.parse(feature);
+    layer.feature = f;
     return layer;
   },
 
@@ -83,10 +86,11 @@ L.Format.GML = L.Format.Base.extend({
    *
    * @method generateLayer
    * @param {Element} feature
+   * @param {Properties} properties
    * @return {Layer} leaflet layer
    * @private
    */
-  generateLayer: function (feature) {
+  generateLayer: function (feature, properties) {
     var geometryField = feature.getElementsByTagNameNS(this.namespaceUri, this.options.geometryField)[0];
     if (!geometryField) {
       console.log(
@@ -96,6 +100,7 @@ L.Format.GML = L.Format.Base.extend({
       return null;
     }
 
-    return this.parseElement(geometryField.firstElementChild, this.options);
+    var options = Object.assign({properties: properties}, this.options);
+    return this.parseElement(geometryField.firstElementChild, options);
   }
 });
