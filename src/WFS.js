@@ -102,7 +102,14 @@ L.WFS = L.FeatureGroup.extend({
 
         var xmldoc = L.XmlUtil.parseXml(data);
         var featureInfo = xmldoc.documentElement;
-        that.readFormat.setFeatureDescription(featureInfo);
+        try {
+          that.readFormat.setFeatureDescription(featureInfo);
+        } catch (e) {
+          if (typeof (errorCallback) === 'function') {
+            errorCallback(e.message);
+          }
+          return;
+        }
         that.options.namespaceUri = featureInfo.attributes.targetNamespace.value;
         if (typeof (successCallback) === 'function') {
           successCallback();
