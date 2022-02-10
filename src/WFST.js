@@ -108,13 +108,13 @@ L.WFST = L.WFS.extend({
           totalInserted = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalInserted', xmlDoc).iterateNext().textContent * 1;
           totalDeleted = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalDeleted', xmlDoc).iterateNext().textContent * 1;
 
-          if (totalUpdated === updated.length) {
+          if (totalUpdated > 0 && totalUpdated === updated.length) {
             that.fire('wfst:update:success', { layers: updated });
             for (var i in updated) {
               delete that.changes[updated[i]._leaflet_id];
             }
           }
-          if (totalDeleted === deleted.length) {
+          if (totalDeleted > 0 && totalDeleted === deleted.length) {
             that.fire('wfst:delete:success', { layers: deleted });
             for (var i in deleted) {
               delete that.changes[deleted[i]._leaflet_id];
