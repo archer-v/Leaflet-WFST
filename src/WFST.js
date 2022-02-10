@@ -59,11 +59,15 @@ L.WFST = L.WFS.extend({
   },
 
   save: function () {
+    if (this.changes.length === 0)
+      return
+
     var transaction = L.XmlUtil.createElementNS('wfs:Transaction', { service: 'WFS', version: this.options.version });
 
     var inserted = [];
     var updated = [];
-    
+    var deleted = [];
+
     for (var id in this.changes) {
       var layer = this.changes[id];
       var action = this[layer.state](layer);
@@ -74,6 +78,9 @@ L.WFST = L.WFS.extend({
       }
       if (layer.state === this.state.update) {
         updated.push(layer);
+      }
+      if (layer.state === this.state.remove) {
+        deleted.push(layer);
       }
     }
 
@@ -94,14 +101,23 @@ L.WFST = L.WFS.extend({
 
         var totalUpdated = 0;
         var totalInserted = 0;
+        var totalDeleted = 0;
 
         try {
           totalUpdated = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalUpdated', xmlDoc).iterateNext().textContent * 1;
           totalInserted = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalInserted', xmlDoc).iterateNext().textContent * 1;
+          totalDeleted = L.XmlUtil.evaluate('//wfs:TransactionSummary/wfs:totalDeleted', xmlDoc).iterateNext().textContent * 1;
 
-          if (totalUpdated == updated.length) {
+          if (totalUpdated === updated.length) {
+            that.fire('wfst:update:success', { layers: updated });
             for (var i in updated) {
               delete that.changes[updated[i]._leaflet_id];
+            }
+          }
+          if (totalDeleted === deleted.length) {
+            that.fire('wfst:delete:success', { layers: deleted });
+            for (var i in deleted) {
+              delete that.changes[deleted[i]._leaflet_id];
             }
           }
         } catch (e) {
