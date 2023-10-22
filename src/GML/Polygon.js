@@ -31,8 +31,8 @@ L.Polygon.include({
     if (gmlPolygons.length === 1 && !forceMulti) return gmlPolygons[0];
 
     // else make multipolygon
-    var multi = L.XmlUtil.createElementNS('gml:MultiSurface', {srsName: crs.code, srsDimension: 2});
-    var collection = multi.appendChild(L.XmlUtil.createElementNS('gml:surfaceMembers'));
+    var multi = L.XmlUtil.createElementNS('gml:MultiPolygon', {srsName: crs.code, srsDimension: 2});
+    var collection = multi.appendChild(L.XmlUtil.createElementNS('gml:polygonMembers'));
     for (var p = 0; p < gmlPolygons.length; p++) {
       collection.appendChild(gmlPolygons[p]);
     }
